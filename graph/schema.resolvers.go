@@ -6,8 +6,7 @@ package graph
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
+	DB "hasura-go/db"
 	"hasura-go/graph/model"
 	"log"
 	"math/rand"
@@ -18,7 +17,7 @@ import (
 
 // GetTask is the resolver for the getTask field.
 func (r *queryResolver) GetTask(ctx context.Context, taskID int) (*model.Task, error) {
-	db := openDB()
+	db := DB.GetDB()
 	rows, err := db.Query("SELECT * FROM tasks where task_id = $1", taskID)
 	if err != nil {
 		log.Fatal(err)
@@ -34,25 +33,8 @@ func (r *queryResolver) GetTask(ctx context.Context, taskID int) (*model.Task, e
 	return &task, nil
 }
 
-// Mutation returns MutationResolver implementation.
-func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
-
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
-type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-//
-// CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
-	db := openDB()
+	db := DB.GetDB()
 	db.Exec("INSERT INTO tasks (task_id, task_title, task_explanation, task_limit, task_priority,task_status, user_id ) VALUES ($1, $2, $3, $4, $5,$6, $7)", input.TaskID, input.TaskTitle, input.TaskExplanation, input.TaskPriority, input.TaskStatus, input.UserID)
 	rand.Seed(time.Now().Unix())
 	relationship_id := rand.Intn(1000000000000)
@@ -74,7 +56,7 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 
 // UpdateTask is the resolver for the updateTask field.
 func (r *mutationResolver) UpdateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
-	db := openDB()
+	db := DB.GetDB()
 	db.Exec("UPDATE tasks SET task_title= $1, task_explanation = $2, task_limit = $3, task_priority = $4,task_status = $5 WHERE task_id = $6", input.TaskTitle, input.TaskExplanation, input.TaskPriority, input.TaskStatus, input.TaskID)
 	rows, err := db.Query("SELECT * FROM tasks where task_id = $1", input.TaskID)
 	if err != nil {
@@ -94,7 +76,7 @@ func (r *mutationResolver) UpdateTask(ctx context.Context, input model.NewTask) 
 
 // DeleteTask is the resolver for the deleteTask field.
 func (r *mutationResolver) DeleteTask(ctx context.Context, taskID int) (*model.Task, error) {
-	db := openDB()
+	db := DB.GetDB()
 	rows, err := db.Query("SELECT * FROM tasks where task_id = $1", taskID)
 	if err != nil {
 		log.Fatal(err)
@@ -112,16 +94,11 @@ func (r *mutationResolver) DeleteTask(ctx context.Context, taskID int) (*model.T
 	return &task, nil
 }
 
-// GetTask is the resolver for the getTask field.
+// Mutation returns MutationResolver implementation.
+func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
-func openDB() *sql.DB {
-	connStr := "host=postgres port=5432 user=postgres password=postgrespassword dbname= postgres sslmode=disable"
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("DB Open!!!")
-	return db
-}
+type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

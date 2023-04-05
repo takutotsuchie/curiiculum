@@ -2,6 +2,8 @@
 package main
 
 import (
+	"database/sql"
+	DB "hasura-go/db"
 	"hasura-go/graph"
 	"log"
 	"net/http"
@@ -14,7 +16,16 @@ import (
 
 const defaultPort = "8000"
 
+var Db *sql.DB
+
 func main() {
+
+	connStr := "host=postgres port=5432 user=postgres password=postgrespassword dbname= postgres sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	DB.SetDB(db)
 
 	port := os.Getenv("PORT")
 	if port == "" {
