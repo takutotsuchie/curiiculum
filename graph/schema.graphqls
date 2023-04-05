@@ -1,0 +1,41 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+# タスクの登録、更新、削除
+
+type Task{
+  task_id: Int!
+  task_title: String!
+  task_explanation: String
+  task_limit: String!
+  task_priority: Int!
+  task_status: String!
+  user_id: Int!
+  ##ここからlabel
+  task_label: Int! 
+}
+
+
+input NewTask{
+  task_id: Int!
+  task_title: String!
+  task_explanation: String
+  task_limit: String!
+  task_priority: Int!
+  task_status: String!
+  user_id: Int!
+  ##ここからlabel
+  task_label: Int!
+}
+
+type Query{
+  getTask(taskID: Int!): Task!
+}
+
+type Mutation {
+  createTask(input: NewTask!): Task!
+  updateTask(input: NewTask!): Task!
+  deleteTask(task_id: Int! ):Task!
+
+}
