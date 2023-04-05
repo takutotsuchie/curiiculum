@@ -7,7 +7,6 @@ RUN go mod download
 
 
 COPY . .
-RUN go get -u github.com/go-sql-driver/mysql
 RUN go mod tidy
 
 RUN go build -o app .
