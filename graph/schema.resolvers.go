@@ -60,14 +60,13 @@ func (r *mutationResolver) UpdateTask(ctx context.Context, input model.NewTask) 
 	db.Exec("UPDATE tasks SET task_title= $1, task_explanation = $2, task_limit = $3, task_priority = $4,task_status = $5 WHERE task_id = $6", input.TaskTitle, input.TaskExplanation, input.TaskPriority, input.TaskStatus, input.TaskID)
 	rows, err := db.Query("SELECT * FROM tasks where task_id = $1", input.TaskID)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	var task model.Task
 	for rows.Next() {
-
 		if err := rows.Scan(&task.TaskID, &task.TaskTitle, &task.TaskExplanation, &task.TaskLimit, &task.TaskPriority, &task.TaskStatus, &task.UserID); err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 	}
 	rows.Close()
@@ -79,13 +78,13 @@ func (r *mutationResolver) DeleteTask(ctx context.Context, taskID int) (*model.T
 	db := DB.GetDB()
 	rows, err := db.Query("SELECT * FROM tasks where task_id = $1", taskID)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	var task model.Task
 	for rows.Next() {
 		if err := rows.Scan(&task.TaskID, &task.TaskTitle, &task.TaskExplanation, &task.TaskLimit, &task.TaskPriority, &task.TaskStatus, &task.UserID); err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 
 	}
