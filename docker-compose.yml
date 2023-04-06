@@ -29,8 +29,8 @@ services:
       # HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
       ## uncomment next line to set an admin secret
       # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
-      volumes:
-      - ./hasura:/hasura
+    volumes:
+        - ./hasura:/hasura
   go:
     build:
       context: .
@@ -39,12 +39,14 @@ services:
     depends_on:
       - postgres
     volumes:
-      - .:/go/src/app
+      - .:/app
+     
     command: go run main.go
-  environment:
+    environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespassword
-  volumes:
-    db_data:
+volumes:
+  db_data:
+       
 
