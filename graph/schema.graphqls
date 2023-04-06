@@ -1,38 +1,67 @@
 
 # タスクの登録、更新、削除
-
-type Task{
-  task_id: Int!
-  task_title: String!
-  task_explanation: String
-  task_limit: String!
-  task_priority: Int!
-  task_status: String!
-  user_id: Int!
-  ##ここからlabel
-  task_label: Int! 
+enum TaskStatus{
+  Todo
+  ongoing
+  completed
 }
+
+enum LabelNumber {
+  ZERO
+  ONE
+  TWO
+  THREE
+  FOUR
+  FIVE
+}
+enum TaskPriority{
+  ONE
+  TWO
+  THREE
+  FOUR
+  FIVE
+  SIX
+  SEVEN
+  EIGHT
+  NINE
+  TEN
+}
+
+scalar DateTime
+type Task{
+  id: ID!
+  title: String!
+  explanation: String
+  limit: DateTime!
+  priority: TaskPriority!
+  task_status: TaskStatus!
+  user_id: ID!
+  ##ここからlabel
+  # 0~5のラベル
+  task_label: LabelNumber! 
+}
+
 
 
 input NewTask{
-  task_id: Int!
-  task_title: String!
-  task_explanation: String
-  task_limit: String!
-  task_priority: Int!
-  task_status: String!
-  user_id: Int!
+  id: ID!
+  title: String!
+  explanation: String
+  limit: DateTime!
+  priority: TaskPriority!
+  task_status: TaskStatus!
+  user_id: ID!
   ##ここからlabel
-  task_label: Int!
+  # 0~5のラベル
+  task_label: LabelNumber! 
 }
 
 type Query{
-  getTask(taskID: Int!): Task!
+  getTask(taskID: ID!): Task!
 }
 
 type Mutation {
   createTask(input: NewTask!): Task!
   updateTask(input: NewTask!): Task!
-  deleteTask(task_id: Int! ):Task!
-
+  deleteTask(id: ID! ):Task!
 }

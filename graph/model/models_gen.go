@@ -2,24 +2,179 @@
 
 package model
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type NewTask struct {
-	TaskID          int     `json:"task_id"`
-	TaskTitle       string  `json:"task_title"`
-	TaskExplanation *string `json:"task_explanation,omitempty"`
-	TaskLimit       string  `json:"task_limit"`
-	TaskPriority    int     `json:"task_priority"`
-	TaskStatus      string  `json:"task_status"`
-	UserID          int     `json:"user_id"`
-	TaskLabel       int     `json:"task_label"`
+	ID          string       `json:"id"`
+	Title       string       `json:"title"`
+	Explanation *string      `json:"explanation,omitempty"`
+	Limit       string       `json:"limit"`
+	Priority    TaskPriority `json:"priority"`
+	TaskStatus  TaskStatus   `json:"task_status"`
+	UserID      string       `json:"user_id"`
+	TaskLabel   LabelNumber  `json:"task_label"`
 }
 
 type Task struct {
-	TaskID          int     `json:"task_id"`
-	TaskTitle       string  `json:"task_title"`
-	TaskExplanation *string `json:"task_explanation,omitempty"`
-	TaskLimit       string  `json:"task_limit"`
-	TaskPriority    int     `json:"task_priority"`
-	TaskStatus      string  `json:"task_status"`
-	UserID          int     `json:"user_id"`
-	TaskLabel       int     `json:"task_label"`
+	ID          string       `json:"id"`
+	Title       string       `json:"title"`
+	Explanation *string      `json:"explanation,omitempty"`
+	Limit       string       `json:"limit"`
+	Priority    TaskPriority `json:"priority"`
+	TaskStatus  TaskStatus   `json:"task_status"`
+	UserID      string       `json:"user_id"`
+	TaskLabel   LabelNumber  `json:"task_label"`
+}
+
+type LabelNumber string
+
+const (
+	LabelNumberZero  LabelNumber = "ZERO"
+	LabelNumberOne   LabelNumber = "ONE"
+	LabelNumberTwo   LabelNumber = "TWO"
+	LabelNumberThree LabelNumber = "THREE"
+	LabelNumberFour  LabelNumber = "FOUR"
+	LabelNumberFive  LabelNumber = "FIVE"
+)
+
+var AllLabelNumber = []LabelNumber{
+	LabelNumberZero,
+	LabelNumberOne,
+	LabelNumberTwo,
+	LabelNumberThree,
+	LabelNumberFour,
+	LabelNumberFive,
+}
+
+func (e LabelNumber) IsValid() bool {
+	switch e {
+	case LabelNumberZero, LabelNumberOne, LabelNumberTwo, LabelNumberThree, LabelNumberFour, LabelNumberFive:
+		return true
+	}
+	return false
+}
+
+func (e LabelNumber) String() string {
+	return string(e)
+}
+
+func (e *LabelNumber) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = LabelNumber(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid LabelNumber", str)
+	}
+	return nil
+}
+
+func (e LabelNumber) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type TaskPriority string
+
+const (
+	TaskPriorityOne   TaskPriority = "ONE"
+	TaskPriorityTwo   TaskPriority = "TWO"
+	TaskPriorityThree TaskPriority = "THREE"
+	TaskPriorityFour  TaskPriority = "FOUR"
+	TaskPriorityFive  TaskPriority = "FIVE"
+	TaskPrioritySix   TaskPriority = "SIX"
+	TaskPrioritySeven TaskPriority = "SEVEN"
+	TaskPriorityEight TaskPriority = "EIGHT"
+	TaskPriorityNine  TaskPriority = "NINE"
+	TaskPriorityTen   TaskPriority = "TEN"
+)
+
+var AllTaskPriority = []TaskPriority{
+	TaskPriorityOne,
+	TaskPriorityTwo,
+	TaskPriorityThree,
+	TaskPriorityFour,
+	TaskPriorityFive,
+	TaskPrioritySix,
+	TaskPrioritySeven,
+	TaskPriorityEight,
+	TaskPriorityNine,
+	TaskPriorityTen,
+}
+
+func (e TaskPriority) IsValid() bool {
+	switch e {
+	case TaskPriorityOne, TaskPriorityTwo, TaskPriorityThree, TaskPriorityFour, TaskPriorityFive, TaskPrioritySix, TaskPrioritySeven, TaskPriorityEight, TaskPriorityNine, TaskPriorityTen:
+		return true
+	}
+	return false
+}
+
+func (e TaskPriority) String() string {
+	return string(e)
+}
+
+func (e *TaskPriority) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TaskPriority(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TaskPriority", str)
+	}
+	return nil
+}
+
+func (e TaskPriority) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type TaskStatus string
+
+const (
+	TaskStatusTodo      TaskStatus = "Todo"
+	TaskStatusOngoing   TaskStatus = "ongoing"
+	TaskStatusCompleted TaskStatus = "completed"
+)
+
+var AllTaskStatus = []TaskStatus{
+	TaskStatusTodo,
+	TaskStatusOngoing,
+	TaskStatusCompleted,
+}
+
+func (e TaskStatus) IsValid() bool {
+	switch e {
+	case TaskStatusTodo, TaskStatusOngoing, TaskStatusCompleted:
+		return true
+	}
+	return false
+}
+
+func (e TaskStatus) String() string {
+	return string(e)
+}
+
+func (e *TaskStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = TaskStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid TaskStatus", str)
+	}
+	return nil
+}
+
+func (e TaskStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

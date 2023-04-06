@@ -6,91 +6,28 @@ package graph
 
 import (
 	"context"
-	DB "hasura-go/db"
+	"fmt"
 	"hasura-go/graph/model"
-	"log"
-	"math/rand"
-	"time"
 )
 
 // CreateTask is the resolver for the createTask field.
-
-// GetTask is the resolver for the getTask field.
-func (r *queryResolver) GetTask(ctx context.Context, taskID int) (*model.Task, error) {
-	db := DB.GetDB()
-	rows, err := db.Query("SELECT * FROM tasks where task_id = $1", taskID)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var task model.Task
-	for rows.Next() {
-		if err := rows.Scan(&task.TaskID, &task.TaskTitle, &task.TaskExplanation, &task.TaskLimit, &task.TaskPriority, &task.TaskStatus, &task.UserID); err != nil {
-			log.Fatal(err)
-		}
-	}
-	rows.Close()
-	return &task, nil
-}
-
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
-	db := DB.GetDB()
-	db.Exec("INSERT INTO tasks (task_id, task_title, task_explanation, task_limit, task_priority,task_status, user_id ) VALUES ($1, $2, $3, $4, $5,$6, $7)", input.TaskID, input.TaskTitle, input.TaskExplanation, input.TaskPriority, input.TaskStatus, input.UserID)
-	rand.Seed(time.Now().Unix())
-	relationship_id := rand.Intn(1000000000000)
-	db.Exec("INSERT INTO task_label_relations (relationship_id, task_id, label_id) VALUES ($1, $2, $3)", relationship_id, input.TaskID, input.TaskLabel)
-	rows, err := db.Query("SELECT * FROM tasks where task_id = $1", input.TaskID)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var task model.Task
-	for rows.Next() {
-		if err := rows.Scan(&task.TaskID, &task.TaskTitle, &task.TaskExplanation, &task.TaskLimit, &task.TaskPriority, &task.TaskStatus, &task.UserID); err != nil {
-			log.Fatal(err)
-		}
-	}
-	rows.Close()
-	return &task, nil
+	panic(fmt.Errorf("not implemented: CreateTask - createTask"))
 }
 
 // UpdateTask is the resolver for the updateTask field.
 func (r *mutationResolver) UpdateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
-	db := DB.GetDB()
-	db.Exec("UPDATE tasks SET task_title= $1, task_explanation = $2, task_limit = $3, task_priority = $4,task_status = $5 WHERE task_id = $6", input.TaskTitle, input.TaskExplanation, input.TaskPriority, input.TaskStatus, input.TaskID)
-	rows, err := db.Query("SELECT * FROM tasks where task_id = $1", input.TaskID)
-	if err != nil {
-		log.Print(err)
-	}
-
-	var task model.Task
-	for rows.Next() {
-		if err := rows.Scan(&task.TaskID, &task.TaskTitle, &task.TaskExplanation, &task.TaskLimit, &task.TaskPriority, &task.TaskStatus, &task.UserID); err != nil {
-			log.Print(err)
-		}
-	}
-	rows.Close()
-	return &task, nil
+	panic(fmt.Errorf("not implemented: UpdateTask - updateTask"))
 }
 
 // DeleteTask is the resolver for the deleteTask field.
-func (r *mutationResolver) DeleteTask(ctx context.Context, taskID int) (*model.Task, error) {
-	db := DB.GetDB()
-	rows, err := db.Query("SELECT * FROM tasks where task_id = $1", taskID)
-	if err != nil {
-		log.Print(err)
-	}
+func (r *mutationResolver) DeleteTask(ctx context.Context, id string) (*model.Task, error) {
+	panic(fmt.Errorf("not implemented: DeleteTask - deleteTask"))
+}
 
-	var task model.Task
-	for rows.Next() {
-		if err := rows.Scan(&task.TaskID, &task.TaskTitle, &task.TaskExplanation, &task.TaskLimit, &task.TaskPriority, &task.TaskStatus, &task.UserID); err != nil {
-			log.Print(err)
-		}
-
-	}
-	rows.Close()
-	db.Exec("DELETE FROM tasks WHERE task_id = $1", taskID)
-	return &task, nil
+// GetTask is the resolver for the getTask field.
+func (r *queryResolver) GetTask(ctx context.Context, taskID string) (*model.Task, error) {
+	panic(fmt.Errorf("not implemented: GetTask - getTask"))
 }
 
 // Mutation returns MutationResolver implementation.
