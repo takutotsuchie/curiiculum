@@ -6,8 +6,8 @@ package graph
 
 import (
 	"context"
+	"curiiculum/graph/model"
 	"fmt"
-	"hasura-go/graph/model"
 )
 
 // CreateTask is the resolver for the createTask field.
@@ -25,16 +25,7 @@ func (r *mutationResolver) DeleteTask(ctx context.Context, id string) (*model.Ta
 	panic(fmt.Errorf("not implemented: DeleteTask - deleteTask"))
 }
 
-// GetTask is the resolver for the getTask field.
-func (r *queryResolver) GetTask(ctx context.Context, taskID string) (*model.Task, error) {
-	panic(fmt.Errorf("not implemented: GetTask - getTask"))
-}
-
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
-// Query returns QueryResolver implementation.
-func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
-
 type mutationResolver struct{ *Resolver }
-type queryResolver struct{ *Resolver }

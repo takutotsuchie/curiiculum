@@ -2,9 +2,9 @@
 package main
 
 import (
+	DB "curiiculum/db"
+	"curiiculum/graph"
 	"database/sql"
-	DB "hasura-go/db"
-	"hasura-go/graph"
 	"log"
 	"net/http"
 	"os"
@@ -15,8 +15,6 @@ import (
 )
 
 const defaultPort = "8000"
-
-var Db *sql.DB
 
 func main() {
 	POSTGRES_USER := os.Getenv("POSTGRES_USER")

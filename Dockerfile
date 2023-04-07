@@ -4,8 +4,8 @@ WORKDIR /app
 
 RUN go mod download
 # sqlboilerのダウンロード
-RUN go get -u -t github.com/volatiletech/sqlboiler/v4
-RUN go get -u -t github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql
+RUN go install github.com/volatiletech/sqlboiler/v4@latest
+RUN go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
 
 
 COPY . .

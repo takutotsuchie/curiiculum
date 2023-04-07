@@ -29,7 +29,7 @@ type Task struct {
 	Explanation null.String `boil:"explanation" json:"explanation,omitempty" toml:"explanation" yaml:"explanation,omitempty"`
 	Limit       time.Time   `boil:"limit" json:"limit" toml:"limit" yaml:"limit"`
 	Priority    int         `boil:"priority" json:"priority" toml:"priority" yaml:"priority"`
-	Status      int         `boil:"status" json:"status" toml:"status" yaml:"status"`
+	Status      string      `boil:"status" json:"status" toml:"status" yaml:"status"`
 	UserID      string      `boil:"user_id" json:"user_id" toml:"user_id" yaml:"user_id"`
 
 	R *taskR `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -139,7 +139,7 @@ var TaskWhere = struct {
 	Explanation whereHelpernull_String
 	Limit       whereHelpertime_Time
 	Priority    whereHelperint
-	Status      whereHelperint
+	Status      whereHelperstring
 	UserID      whereHelperstring
 }{
 	ID:          whereHelperstring{field: "\"tasks\".\"id\""},
@@ -147,7 +147,7 @@ var TaskWhere = struct {
 	Explanation: whereHelpernull_String{field: "\"tasks\".\"explanation\""},
 	Limit:       whereHelpertime_Time{field: "\"tasks\".\"limit\""},
 	Priority:    whereHelperint{field: "\"tasks\".\"priority\""},
-	Status:      whereHelperint{field: "\"tasks\".\"status\""},
+	Status:      whereHelperstring{field: "\"tasks\".\"status\""},
 	UserID:      whereHelperstring{field: "\"tasks\".\"user_id\""},
 }
 

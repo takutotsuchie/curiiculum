@@ -1,4 +1,4 @@
-module hasura-go
+module curiiculum
 
 go 1.20
 
