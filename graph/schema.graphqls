@@ -35,6 +35,13 @@ input NewTask{
   # 0~5のラベル
   label: Int! 
 }
+type User{
+  id :String!
+  name: String!
+}
+type Query {
+  user(id: ID!): User
+}
 
 type Mutation {
   createTask(input: NewTask!): Task!

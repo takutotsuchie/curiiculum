@@ -6,13 +6,70 @@ package graph
 
 import (
 	"context"
+	DB "curiiculum/db"
 	"curiiculum/graph/model"
+	"curiiculum/models"
 	"fmt"
+	"log"
+	"time"
+
+	null "github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
+	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
 // CreateTask is the resolver for the createTask field.
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
-	panic(fmt.Errorf("not implemented: CreateTask - createTask"))
+	db := DB.GetDB()
+	ex := null.NewString(input.Explanation, input.Explanation != "")
+	t, err := time.Parse(time.RFC3339, input.Limit)
+	if err != nil {
+		log.Print(err)
+	}
+	// まずTaskテーブルにinsert
+	newTask := models.Task{
+		ID:          input.ID,
+		Title:       input.Title,
+		Explanation: ex,
+		Limit:       t,
+		Priority:    input.Priority,
+		Status:      input.Status.String(),
+		UserID:      input.UserID,
+	}
+	if err := newTask.Insert(ctx, db, boil.Infer()); err != nil {
+		log.Print(err)
+	}
+	// insertしたタスクをselect
+	createdTask, err := models.Tasks(qm.Where("id=?", input.ID)).One(ctx, db)
+	if err != nil {
+		log.Print(err)
+	}
+	// LabelテーブルからlableIDをselect
+	labelID, err := models.Labels(qm.Where("name=?", input.Label)).One(ctx, db)
+	if err != nil {
+		log.Print(err)
+	}
+	// task-labelテーブルへのinsert
+	newTaskLabel := models.TaskLabelRelation{
+		TaskID:  createdTask.ID,
+		LabelID: labelID.ID,
+	}
+	if err := newTaskLabel.Insert(ctx, db, boil.Infer()); err != nil {
+		log.Print(err)
+	}
+	// task-labelテーブルからlabelIDをselect
+	expra := createdTask.Explanation.String
+
+	return &model.Task{
+		ID:          createdTask.ID,
+		Title:       createdTask.Title,
+		Explanation: expra,
+		Limit:       createdTask.Limit.Format("2006-01-02"),
+		Priority:    createdTask.Priority,
+		Status:      model.TaskStatus(createdTask.Status),
+		UserID:      createdTask.UserID,
+		Label:       input.Label,
+	}, nil
 }
 
 // UpdateTask is the resolver for the updateTask field.
@@ -25,7 +82,16 @@ func (r *mutationResolver) DeleteTask(ctx context.Context, id string) (*model.Ta
 	panic(fmt.Errorf("not implemented: DeleteTask - deleteTask"))
 }
 
+// User is the resolver for the user field.
+func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
+	panic(fmt.Errorf("not implemented: User - user"))
+}
+
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 
+// Query returns QueryResolver implementation.
+func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
+
 type mutationResolver struct{ *Resolver }
+type queryResolver struct{ *Resolver }

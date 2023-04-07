@@ -30,6 +30,11 @@ type Task struct {
 	Label       int        `json:"label"`
 }
 
+type User struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 type TaskStatus string
 
 const (
