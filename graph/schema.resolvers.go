@@ -9,8 +9,8 @@ import (
 	DB "curiiculum/db"
 	"curiiculum/graph/model"
 	"curiiculum/models"
-	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	null "github.com/volatiletech/null/v8"
@@ -73,18 +73,96 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 }
 
 // UpdateTask is the resolver for the updateTask field.
+
 func (r *mutationResolver) UpdateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
-	panic(fmt.Errorf("not implemented: UpdateTask - updateTask"))
+	db := DB.GetDB()
+	id := input.ID
+	ex := null.NewString(input.Explanation, input.Explanation != "")
+	t, err := time.Parse(time.RFC3339, input.Limit)
+	if err != nil {
+		log.Print(err)
+	}
+
+	updateColumns := models.M{
+		"ID":          input.ID,
+		"Title":       input.Title,
+		"Explanation": ex,
+		"Limit":       t,
+		"Priority":    input.Priority,
+		"Status":      input.Status.String(),
+		"UserID":      input.UserID,
+	}
+	// タスクを更新
+	_, err = models.Tasks(qm.Where("id = ?", id)).UpdateAll(ctx, db, updateColumns)
+	if err != nil {
+		log.Print(err)
+	}
+	newUpdateTask, err := models.Tasks(qm.Where("id=?", input.ID)).One(ctx, db)
+	if err != nil {
+		log.Print(err)
+	}
+
+	return &model.Task{
+		ID:          newUpdateTask.ID,
+		Title:       newUpdateTask.Title,
+		Explanation: newUpdateTask.Explanation.String,
+		Limit:       newUpdateTask.Limit.Format("2006-01-02"),
+		Priority:    newUpdateTask.Priority,
+		Status:      model.TaskStatus(newUpdateTask.Status),
+		UserID:      newUpdateTask.UserID,
+		Label:       input.Label,
+	}, nil
 }
 
 // DeleteTask is the resolver for the deleteTask field.
 func (r *mutationResolver) DeleteTask(ctx context.Context, id string) (*model.Task, error) {
-	panic(fmt.Errorf("not implemented: DeleteTask - deleteTask"))
+	db := DB.GetDB()
+	// taskテーブルからselect
+	task, err := models.Tasks(qm.Where("id=?", id)).One(ctx, db)
+	if err != nil {
+		log.Print(err)
+	}
+	// task-labelテーブルからselect
+	tasklabel, err := models.TaskLabelRelations(qm.Where("task_id=?", task.ID)).One(ctx, db)
+	if err != nil {
+		log.Print(err)
+	}
+	// labelテーブルからselect
+	label, err := models.Labels(qm.Where("id=?", tasklabel.LabelID)).One(ctx, db)
+	if err != nil {
+		log.Print(err)
+	}
+	// taskテーブルからdelete
+	_, err = models.Tasks(qm.Where("id=?", id)).DeleteAll(ctx, db)
+	if err != nil {
+		log.Print(err)
+	}
+	// task-labelテーブルからdelete
+	_, err = models.TaskLabelRelations(qm.Where("task_id=?", id)).DeleteAll(ctx, db)
+	if err != nil {
+		log.Print(err)
+	}
+	lab, err := strconv.Atoi(label.Name)
+	if err != nil {
+		log.Print(err)
+	}
+	return &model.Task{
+		ID:          task.ID,
+		Title:       task.Title,
+		Explanation: task.Explanation.String,
+		Limit:       task.Limit.Format("2006-01-02"),
+		Priority:    task.Priority,
+		Status:      model.TaskStatus(task.Status),
+		UserID:      task.UserID,
+		Label:       lab,
+	}, nil
 }
 
 // User is the resolver for the user field.
+// このクエリはやらない
 func (r *queryResolver) User(ctx context.Context, id string) (*model.User, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
+	log.Print("このクエリは無効です")
+	return nil, nil
 }
 
 // Mutation returns MutationResolver implementation.
