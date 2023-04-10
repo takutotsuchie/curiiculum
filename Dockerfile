@@ -12,6 +12,6 @@ RUN go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@lates
 COPY . .
 RUN go mod tidy
 
-# RUN go build -o app .
+RUN go build -o app .
 
-# CMD ["./app"]
+CMD ["./app"]

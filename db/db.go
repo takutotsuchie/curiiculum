@@ -10,6 +10,7 @@ var (
 	DBMutex sync.Mutex
 )
 
+// DBインスタンスをセット
 func SetDB(db *sql.DB) {
 	DBMutex.Lock()
 	defer DBMutex.Unlock()
@@ -17,6 +18,7 @@ func SetDB(db *sql.DB) {
 	DB = db
 }
 
+// DBインスタンスを取得
 func GetDB() *sql.DB {
 	DBMutex.Lock()
 	defer DBMutex.Unlock()

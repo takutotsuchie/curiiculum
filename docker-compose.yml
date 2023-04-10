@@ -7,10 +7,11 @@ services:
     - db_data:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: postgrespassword
-  graphql-engine:
+  graphql:
     image: hasura/graphql-engine:v2.22.0
     ports:
-    - "8080:8080"
+      - "8080:8080"
+      - "9695:9695"
     depends_on:
     - "postgres"
     - "go"
@@ -29,8 +30,7 @@ services:
       # HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
       ## uncomment next line to set an admin secret
       # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
-    volumes:
-        - ./hasura:/hasura
+    
   go:
     build:
       context: .
@@ -42,10 +42,12 @@ services:
       - .:/app
      
     command: go run main.go
+   
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgrespassword
+    
 volumes:
   db_data:
        

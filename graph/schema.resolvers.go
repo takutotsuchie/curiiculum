@@ -25,6 +25,7 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 	t, err := time.Parse(time.RFC3339, input.Limit)
 	if err != nil {
 		log.Print(err)
+		return nil, err
 	}
 	// まずTaskテーブルにinsert
 	newTask := models.Task{
@@ -38,16 +39,19 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 	}
 	if err := newTask.Insert(ctx, db, boil.Infer()); err != nil {
 		log.Print(err)
+		return nil, err
 	}
 	// insertしたタスクをselect
 	createdTask, err := models.Tasks(qm.Where("id=?", input.ID)).One(ctx, db)
 	if err != nil {
 		log.Print(err)
+		return nil, err
 	}
 	// LabelテーブルからlableIDをselect
 	labelID, err := models.Labels(qm.Where("name=?", input.Label)).One(ctx, db)
 	if err != nil {
 		log.Print(err)
+		return nil, err
 	}
 	// task-labelテーブルへのinsert
 	newTaskLabel := models.TaskLabelRelation{
@@ -56,6 +60,7 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 	}
 	if err := newTaskLabel.Insert(ctx, db, boil.Infer()); err != nil {
 		log.Print(err)
+		return nil, err
 	}
 	// task-labelテーブルからlabelIDをselect
 	expra := createdTask.Explanation.String
@@ -76,13 +81,15 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 
 func (r *mutationResolver) UpdateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
 	db := DB.GetDB()
+	// まずinputを整形
 	id := input.ID
 	ex := null.NewString(input.Explanation, input.Explanation != "")
 	t, err := time.Parse(time.RFC3339, input.Limit)
 	if err != nil {
 		log.Print(err)
+		return nil, err
 	}
-
+	// updateColumnsを書く
 	updateColumns := models.M{
 		"ID":          input.ID,
 		"Title":       input.Title,
@@ -96,10 +103,28 @@ func (r *mutationResolver) UpdateTask(ctx context.Context, input model.NewTask) 
 	_, err = models.Tasks(qm.Where("id = ?", id)).UpdateAll(ctx, db, updateColumns)
 	if err != nil {
 		log.Print(err)
+		return nil, err
 	}
 	newUpdateTask, err := models.Tasks(qm.Where("id=?", input.ID)).One(ctx, db)
 	if err != nil {
 		log.Print(err)
+		return nil, err
+	}
+	// 新しいラベルのIDを取得
+	labelID, err := models.Labels(qm.Where("name=?", input.Label)).One(ctx, db)
+	if err != nil {
+		log.Print(err)
+		return nil, err
+	}
+	// task-labelテーブルも更新
+	updateColumns = models.M{
+		"task_id":  newUpdateTask.ID,
+		"label_id": labelID.ID,
+	}
+	_, err = models.TaskLabelRelations(qm.Where("task_id=?", newUpdateTask.ID)).UpdateAll(ctx, db, updateColumns)
+	if err != nil {
+		log.Print(err)
+		return nil, err
 	}
 
 	return &model.Task{
@@ -121,30 +146,37 @@ func (r *mutationResolver) DeleteTask(ctx context.Context, id string) (*model.Ta
 	task, err := models.Tasks(qm.Where("id=?", id)).One(ctx, db)
 	if err != nil {
 		log.Print(err)
+		return nil, err
 	}
 	// task-labelテーブルからselect
 	tasklabel, err := models.TaskLabelRelations(qm.Where("task_id=?", task.ID)).One(ctx, db)
 	if err != nil {
 		log.Print(err)
+		return nil, err
 	}
 	// labelテーブルからselect
 	label, err := models.Labels(qm.Where("id=?", tasklabel.LabelID)).One(ctx, db)
 	if err != nil {
 		log.Print(err)
-	}
-	// taskテーブルからdelete
-	_, err = models.Tasks(qm.Where("id=?", id)).DeleteAll(ctx, db)
-	if err != nil {
-		log.Print(err)
+		return nil, err
 	}
 	// task-labelテーブルからdelete
 	_, err = models.TaskLabelRelations(qm.Where("task_id=?", id)).DeleteAll(ctx, db)
 	if err != nil {
 		log.Print(err)
+		return nil, err
 	}
+	// taskテーブルからdelete
+	_, err = models.Tasks(qm.Where("id=?", id)).DeleteAll(ctx, db)
+	if err != nil {
+		log.Print(err)
+		return nil, err
+	}
+
 	lab, err := strconv.Atoi(label.Name)
 	if err != nil {
 		log.Print(err)
+		return nil, err
 	}
 	return &model.Task{
 		ID:          task.ID,
