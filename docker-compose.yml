@@ -41,9 +41,7 @@ services:
     depends_on:
       - postgres
     volumes:
-      - .:/app
-     
-    command: go run main.go
+      - .:/app 
    
     environment:
       POSTGRES_DB: postgres
