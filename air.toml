@@ -1,0 +1,13 @@
+[build]
+  bin = "app"
+  command = "go build -o ./bin/app"
+  args = []
+
+[run]
+  env = []
+  command = "./bin/app"
+  args = []
+
+[log]
+  level = "debug"
+  output = "stdout"
