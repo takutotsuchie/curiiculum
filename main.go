@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	DB "curiiculum/db"
 	"curiiculum/graph"
 	"database/sql"
@@ -9,9 +10,11 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	_ "github.com/lib/pq"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 const defaultPort = "8000"
@@ -33,6 +36,11 @@ func main() {
 	}
 
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	srv.SetErrorPresenter(func(ctx context.Context, e error) *gqlerror.Error {
+		err := graphql.DefaultErrorPresenter(ctx, e)
+		log.Print(err)
+		return err
+	})
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
