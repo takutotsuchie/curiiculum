@@ -1,0 +1,50 @@
+
+# タスクの登録、更新、削除
+enum TaskStatus{
+  Todo
+  ongoing
+  completed
+}
+
+
+
+scalar DateTime
+type Task{
+  id: ID!
+  title: String!
+  explanation: String!
+  limit: DateTime!
+  priority: Int!
+  status: TaskStatus!
+  user_id: ID!
+  ##ここからlabel
+  # 0~5のラベル
+  label: Int! 
+}
+
+
+input NewTask{
+  id: ID!
+  title: String!
+  explanation: String!
+  limit: DateTime!
+  priority: Int!
+  status: TaskStatus!
+  user_id: ID!
+  ##ここからlabel
+  # 0~5のラベル
+  label: Int! 
+}
+type User{
+  id :String!
+  name: String!
+}
+type Query {
+  user(id: ID!): User
+}
+
+type Mutation {
+  createTask(input: NewTask!): Task!
+  updateTask(input: NewTask!): Task!
+  deleteTask(id: ID! ):Task!
+}
