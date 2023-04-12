@@ -6,6 +6,7 @@ import (
 	DB "curiiculum/db"
 	"curiiculum/graph"
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -20,6 +21,7 @@ import (
 const defaultPort = "8000"
 
 func main() {
+	fmt.Println("Hello WOrld")
 	POSTGRES_USER := os.Getenv("POSTGRES_USER")
 	POSTGRES_PASSWORD := os.Getenv("POSTGRES_PASSWORD")
 	POSTGRES_DB := os.Getenv("POSTGRES_DB")

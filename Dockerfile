@@ -7,11 +7,11 @@ RUN go mod download
 # sqlboilerのダウンロード
 RUN go install github.com/volatiletech/sqlboiler/v4@latest
 RUN go install github.com/volatiletech/sqlboiler/v4/drivers/sqlboiler-psql@latest
+RUN go install github.com/cosmtrek/air@v1.29.0
 
 
 COPY . .
 RUN go mod tidy
 
-RUN go build -o app .
 
-CMD CMD ["air", "-c", ".air.toml"]
+CMD ["air", "-c", ".air.toml"]
